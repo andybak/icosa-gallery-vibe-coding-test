@@ -1,0 +1,5 @@
+{
+  "name": "Icosa 3D Explorer",
+  "description": "A high-performance 3D model browser and viewer powered by Icosa Gallery and Three.js.",
+  "requestFramePermissions": []
+}
