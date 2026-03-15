@@ -78,18 +78,6 @@ This repo now includes a GitHub Actions workflow at `.github/workflows/deploy-pa
 - Set `VITE_BASE_PATH=/` in the workflow build step instead of `/<repo-name>/`.
 - Configure your domain in **Settings → Pages** and add DNS records.
 
-### Troubleshooting (Deploy step 404)
-
-If the deploy step fails with `Failed to create deployment (status: 404)`, GitHub Pages is not enabled yet for the repository.
-
-Fix:
-1. Open **Settings → Pages** for your repo.
-2. Set **Source** to **GitHub Actions**.
-3. Re-run the failed workflow from the **Actions** tab.
-
-Direct link format:
-`https://github.com/<owner>/<repo>/settings/pages`
-
 
 ### Note on PR tooling and icons
 
