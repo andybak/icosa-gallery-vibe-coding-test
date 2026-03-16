@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Icosa Explorer icon">
+  <rect width="512" height="512" rx="96" fill="#000"/>
+  <path d="M256 88 392 168v176L256 424 120 344V168L256 88Zm0 52-92 54v124l92 54 92-54V194l-92-54Z" fill="#22c55e"/>
+  <circle cx="256" cy="256" r="38" fill="#22c55e"/>
+</svg>
