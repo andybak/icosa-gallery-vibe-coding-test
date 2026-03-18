@@ -7,11 +7,12 @@ import { ModelCard } from './components/ModelCard';
 import { ModelViewer } from './components/ModelViewer';
 
 export default function App() {
-  const [assets, setAssets] = useState<IcosaAsset[]>([]);
+  const [pages, setPages] = useState<IcosaAsset[][]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedAsset, setSelectedAsset] = useState<IcosaAsset | null>(null);
-  const [pageToken, setPageToken] = useState<string | undefined>(undefined);
+  const [nextPageToken, setNextPageToken] = useState<string | undefined>(undefined);
+  const [currentPageIndex, setCurrentPageIndex] = useState(0);
   const [isSearching, setIsSearching] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [showInstallPrompt, setShowInstallPrompt] = useState(false);
@@ -44,47 +45,72 @@ export default function App() {
   };
 
   const fetchAssets = useCallback(async (token?: string, query?: string, order?: string, cat?: string, isCurated?: boolean) => {
+    const params = {
+      pageToken: token,
+      orderBy: order,
+      category: cat || undefined,
+      curated: isCurated || undefined,
+    };
+
+    return query
+      ? icosaApi.searchAssets(query, params)
+      : icosaApi.getAssets(params);
+  }, []);
+
+  const loadFirstPage = useCallback(async () => {
     try {
       setLoading(true);
-      const params = {
-        pageToken: token,
-        orderBy: order,
-        category: cat || undefined,
-        curated: isCurated || undefined,
-      };
-      
-      const response = query 
-        ? await icosaApi.searchAssets(query, params)
-        : await icosaApi.getAssets(params);
-      
-      if (token) {
-        setAssets(prev => [...prev, ...response.assets]);
-      } else {
-        setAssets(response.assets);
-      }
-      setPageToken(response.nextPageToken);
+      const response = await fetchAssets(undefined, searchQuery, orderBy, category, curated);
+      setPages([response.assets]);
+      setCurrentPageIndex(0);
+      setNextPageToken(response.nextPageToken);
     } catch (error) {
       console.error('Error fetching assets:', error);
+      setPages([]);
+      setCurrentPageIndex(0);
+      setNextPageToken(undefined);
     } finally {
       setLoading(false);
       setIsSearching(false);
     }
-  }, []);
+  }, [category, curated, fetchAssets, orderBy, searchQuery]);
 
   // Initial load and when filters change
   useEffect(() => {
-    fetchAssets(undefined, searchQuery, orderBy, category, curated);
-  }, [orderBy, category, curated]);
+    loadFirstPage();
+  }, [loadFirstPage]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     setIsSearching(true);
-    fetchAssets(undefined, searchQuery, orderBy, category, curated);
+    loadFirstPage();
   };
 
-  const loadMore = () => {
-    if (pageToken && !loading) {
-      fetchAssets(pageToken, searchQuery, orderBy, category, curated);
+  const goToPreviousPage = () => {
+    setCurrentPageIndex((prev) => Math.max(0, prev - 1));
+  };
+
+  const goToNextPage = async () => {
+    if (loading) return;
+
+    const hasCachedNextPage = currentPageIndex < pages.length - 1;
+    if (hasCachedNextPage) {
+      setCurrentPageIndex((prev) => prev + 1);
+      return;
+    }
+
+    if (!nextPageToken) return;
+
+    try {
+      setLoading(true);
+      const response = await fetchAssets(nextPageToken, searchQuery, orderBy, category, curated);
+      setPages((prev) => [...prev, response.assets]);
+      setCurrentPageIndex((prev) => prev + 1);
+      setNextPageToken(response.nextPageToken);
+    } catch (error) {
+      console.error('Error fetching next page:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -152,7 +178,7 @@ export default function App() {
               onChange={(e) => setOrderBy(e.target.value)}
               className="bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none cursor-pointer hover:bg-zinc-800 transition-colors"
             >
-              <option value="BEST">Best Match</option>
+              <option value="BEST">Best</option>
               <option value="NEWEST">Newest</option>
               <option value="OLDEST">Oldest</option>
               <option value="-LIKES">Most Liked</option>
@@ -199,14 +225,14 @@ export default function App() {
           </label>
         </div>
 
-        {assets.length === 0 && !loading ? (
+        {pages[currentPageIndex]?.length === 0 && !loading ? (
           <div className="flex flex-col items-center justify-center py-20 text-zinc-500">
             <Box size={48} className="mb-4 opacity-20" />
             <p>No models found. Try a different search.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {assets.map((asset, index) => (
+            {(pages[currentPageIndex] || []).map((asset, index) => (
               <motion.div
                 key={`${asset.name}-${index}`}
                 initial={{ opacity: 0, y: 20 }}
@@ -226,14 +252,25 @@ export default function App() {
           </div>
         )}
 
-        {/* Load More */}
-        {pageToken && !loading && (
-          <div className="flex justify-center py-12">
+        {/* Pagination */}
+        {!loading && pages.length > 0 && (
+          <div className="flex items-center justify-center gap-3 py-12">
             <button
-              onClick={loadMore}
-              className="px-8 py-3 bg-zinc-900 hover:bg-zinc-800 rounded-full text-sm font-medium transition-colors border border-zinc-800"
+              onClick={goToPreviousPage}
+              disabled={currentPageIndex === 0}
+              className="px-4 py-2 bg-zinc-900 hover:bg-zinc-800 rounded-lg text-sm font-medium transition-colors border border-zinc-800 disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              Load More
+              Previous
+            </button>
+            <span className="text-sm text-zinc-400 min-w-20 text-center">
+              Page {currentPageIndex + 1}
+            </span>
+            <button
+              onClick={goToNextPage}
+              disabled={loading || (currentPageIndex >= pages.length - 1 && !nextPageToken)}
+              className="px-4 py-2 bg-zinc-900 hover:bg-zinc-800 rounded-lg text-sm font-medium transition-colors border border-zinc-800 disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              Next
             </button>
           </div>
         )}
