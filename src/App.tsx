@@ -326,7 +326,7 @@ export default function App() {
                 <div className="space-y-4">
                   <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-500">Available Formats</h4>
                   <div className="grid grid-cols-2 gap-2">
-                    {selectedAsset.formats.map((format, i) => (
+                    {selectedAsset.formats.filter(f => f.formatType !== 'PB' && f.formatType !== 'GLTF1').map((format, i) => (
                       <div key={i} className="px-3 py-2 bg-zinc-900 rounded-lg text-xs flex items-center justify-between border border-zinc-800">
                         <span className="font-mono">{format.formatType}</span>
                         {format.root?.url && (
