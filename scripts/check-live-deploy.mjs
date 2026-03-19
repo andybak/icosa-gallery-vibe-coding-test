@@ -1,6 +1,10 @@
 #!/usr/bin/env node
 
-const url = process.argv[2] || 'https://andybak.github.io/icosa-gallery-vibe-coding-test/';
+const url = process.argv[2] || process.env.CHECK_LIVE_URL || 'https://andybak.github.io/icosa-gallery-vibe-coding-test/';
+const retries = Number(process.env.CHECK_LIVE_RETRIES || '1');
+const retryDelayMs = Number(process.env.CHECK_LIVE_RETRY_DELAY_MS || '5000');
+
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const fetchText = async (u) => {
   const res = await fetch(u);
@@ -15,11 +19,10 @@ const extract = (html, regex) => {
   return m ? m[1] : null;
 };
 
-(async () => {
+const runCheck = async () => {
   const {res: htmlRes, text: html} = await fetchText(url);
   if (!htmlRes.ok) {
-    console.error(`HTML request failed: ${htmlRes.status}`);
-    process.exit(1);
+    throw new Error(`HTML request failed: ${htmlRes.status}`);
   }
 
   const jsPath = extract(html, /<script[^>]*src="([^"]+\.js)"/i);
@@ -28,8 +31,7 @@ const extract = (html, regex) => {
   console.log(`HTML: ${htmlRes.status} ${url}`);
 
   if (!jsPath || !cssPath) {
-    console.error('Could not find JS or CSS asset paths in HTML');
-    process.exit(2);
+    throw new Error('Could not find JS or CSS asset paths in HTML');
   }
 
   const jsUrl = absolute(url, jsPath);
@@ -40,6 +42,28 @@ const extract = (html, regex) => {
   console.log(`CSS: ${cssRes.status} ${cssUrl}`);
 
   if (!jsRes.ok || !cssRes.ok) {
-    process.exit(3);
+    throw new Error('Referenced assets did not return success status codes');
   }
+};
+
+(async () => {
+  let attempt = 0;
+  let lastError;
+
+  while (attempt < retries) {
+    attempt += 1;
+    try {
+      await runCheck();
+      return;
+    } catch (error) {
+      lastError = error;
+      console.error(`Attempt ${attempt} failed: ${error.message}`);
+      if (attempt < retries) {
+        await sleep(retryDelayMs);
+      }
+    }
+  }
+
+  console.error(lastError?.message || 'Live deploy check failed');
+  process.exit(1);
 })();
