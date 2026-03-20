@@ -12,6 +12,7 @@ export default defineConfig(() => {
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),
+        'three-icosa': path.resolve(__dirname, 'src/lib/three-icosa.module.js'),
       },
     },
     server: {

@@ -38,11 +38,11 @@
 }
 
 .fullscreen-button {
-    background: url("../img/fullscreen_white_24dp.svg");
+    background: url("/viewer/img/fullscreen_white_24dp.svg");
 }
 
 .fullscreen-button.fullscreen {
-    background: url("../img/fullscreen_exit_white_24dp.svg");
+    background: url("/viewer/img/fullscreen_exit_white_24dp.svg");
 }
 
 #loadscreen {
@@ -71,12 +71,12 @@
     height: 256px;
     margin: 0;
     display: inline-block;
-    background: url("../img/loading-logo.png");
+    background: url("/viewer/img/loading-logo.png");
     animation: load-anim 1s steps(24) infinite;
 }
 
 .loaderror .loadlogo {
-    background: url("../img/error-logo.png");
+    background: url("/viewer/img/error-logo.png");
     animation: none;
 }
 

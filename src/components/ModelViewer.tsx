@@ -1,4 +1,7 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useRef } from 'react';
+import '../lib/icosa-viewer.css';
+// @ts-ignore - pre-built ES module, types provided separately
+import { Viewer } from '../lib/icosa-viewer.module.js';
 
 interface ModelFormat {
   url: string;
@@ -11,36 +14,47 @@ interface ModelViewerProps {
   className?: string;
 }
 
+const ASSET_BASE_URL = 'https://icosa-foundation.github.io/icosa-sketch-assets/';
+
 export const ModelViewer: React.FC<ModelViewerProps> = ({ formats, className }) => {
-  const viewerSrc = useMemo(() => {
-    if (formats.length === 0) return null;
+  const containerRef = useRef<HTMLDivElement>(null);
 
-    // Use the first (highest-priority) format
+  useEffect(() => {
+    if (!containerRef.current || formats.length === 0) return;
+
     const { url, formatType, mtlUrl } = formats[0];
-    if (!url) return null;
+    if (!url) return;
 
-    const params = new URLSearchParams({ url, format: formatType });
-    if (mtlUrl) params.set('mtlUrl', mtlUrl);
+    const viewer = new Viewer(ASSET_BASE_URL, containerRef.current);
 
-    return `viewer.html?${params.toString()}`;
+    const fmt = formatType.toUpperCase();
+    if (fmt === 'TILT') {
+      viewer.loadTilt(url, {});
+    } else if (fmt === 'OBJ' || fmt === 'OBJ_NGON') {
+      mtlUrl ? viewer.loadObjWithMtl(url, mtlUrl, {}) : viewer.loadObj(url, {});
+    } else if (fmt === 'FBX') {
+      viewer.loadFbx(url, {});
+    } else if (fmt === 'PLY') {
+      viewer.loadPly(url, {});
+    } else if (fmt === 'STL') {
+      viewer.loadStl(url, {});
+    } else if (fmt === 'USDZ') {
+      viewer.loadUsdz(url, {});
+    } else if (fmt === 'VOX') {
+      viewer.loadVox(url, {});
+    } else if (fmt === 'GLTF1') {
+      viewer.loadGltf1(url, true, {});
+    } else {
+      viewer.loadGltf(url, true, {});
+    }
+
+    return () => {
+      // The viewer doesn't expose a dispose method; clear the container
+      if (containerRef.current) {
+        containerRef.current.innerHTML = '';
+      }
+    };
   }, [formats]);
 
-  if (!viewerSrc) {
-    return (
-      <div className={`flex items-center justify-center bg-zinc-900 text-zinc-500 ${className}`}>
-        No viewable format available
-      </div>
-    );
-  }
-
-  return (
-    <iframe
-      key={viewerSrc}
-      src={viewerSrc}
-      className={className}
-      style={{ border: 'none', display: 'block' }}
-      allow="xr-spatial-tracking; fullscreen"
-      title="3D Model Viewer"
-    />
-  );
+  return <div ref={containerRef} className={className} style={{ position: 'relative' }} />;
 };
