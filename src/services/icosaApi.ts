@@ -1,6 +1,8 @@
 import { IcosaApiResponse, IcosaAsset } from '../types/icosa';
 
-const BASE_URL = 'https://api.icosa.gallery/v1';
+const BASE_URL = import.meta.env.DEV
+  ? `${window.location.origin}/api/v1`
+  : 'https://api.icosa.gallery/v1';
 
 const SUPPORTED_FORMATS = ['GLB', 'GLTF2', 'OBJ', 'OBJ_NGON', 'VOX'];
 
