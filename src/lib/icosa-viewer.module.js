@@ -6051,7 +6051,7 @@ class $677737c8a5cbea2f$export$2ec4afd9b3c16a85 {
             (0, $e1f901905a002d12$export$2e2bcd8739ae039).install({
                 THREE: $hBQxr$three
             });
-            this.cameraControls = new (0, $e1f901905a002d12$export$2e2bcd8739ae039)(this.flatCamera, viewer.canvas);
+            this.cameraControls = new (0, $e1f901905a002d12$export$2e2bcd8739ae039)(this.flatCamera, this.canvas);
             this.cameraControls.smoothTime = 0.1;
             this.cameraControls.draggingSmoothTime = 0.1;
             this.cameraControls.polarRotateSpeed = this.cameraControls.azimuthRotateSpeed = 1.0;
@@ -6090,7 +6090,7 @@ class $677737c8a5cbea2f$export$2ec4afd9b3c16a85 {
             (0, $e1f901905a002d12$export$2e2bcd8739ae039).install({
                 THREE: $hBQxr$three
             });
-            this.cameraControls = new (0, $e1f901905a002d12$export$2e2bcd8739ae039)(this.flatCamera, viewer.canvas);
+            this.cameraControls = new (0, $e1f901905a002d12$export$2e2bcd8739ae039)(this.flatCamera, this.canvas);
             this.cameraControls.smoothTime = 0.1;
             this.cameraControls.draggingSmoothTime = 0.1;
             this.cameraControls.polarRotateSpeed = this.cameraControls.azimuthRotateSpeed = 1.0;
