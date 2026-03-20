@@ -3896,10 +3896,15 @@ class $677737c8a5cbea2f$export$2ec4afd9b3c16a85 {
             const opacity = window.getComputedStyle(loadscreen).opacity;
             if (parseFloat(opacity) < 0.2) loadscreen.classList.add('loaded');
         });
-        this.showErrorIcon = ()=>{
+        this.showErrorIcon = (err)=>{
             let loadscreen = document.getElementById('loadscreen');
             loadscreen?.classList.remove('fade-out');
             loadscreen?.classList.add('loaderror');
+            if (err && loadscreen) {
+                let msg = loadscreen.querySelector('.error-msg');
+                if (!msg) { msg = document.createElement('div'); msg.className = 'error-msg'; msg.style.cssText = 'color:white;background:rgba(0,0,0,0.8);padding:8px;font-size:11px;word-break:break-all;max-height:120px;overflow:auto;position:absolute;bottom:0;left:0;right:0;z-index:10;'; loadscreen.appendChild(msg); }
+                msg.textContent = String(err);
+            }
         };
         const clock = new $hBQxr$three.Clock();
         this.scene = new $hBQxr$three.Scene();
@@ -5581,8 +5586,8 @@ class $677737c8a5cbea2f$export$2ec4afd9b3c16a85 {
         try {
             await this._loadGltf(url, loadEnvironment, overrides, true);
         } catch (error) {
-            this.showErrorIcon();
-            console.error("Error loading glTFv1 model");
+            this.showErrorIcon(error);
+            console.error("Error loading glTFv1 model", error);
             this.loadingError = true;
         }
     }
@@ -5590,8 +5595,8 @@ class $677737c8a5cbea2f$export$2ec4afd9b3c16a85 {
         try {
             await this._loadGltf(url, loadEnvironment, overrides, false);
         } catch (error) {
-            this.showErrorIcon();
-            console.error("Error loading glTFv2 model");
+            this.showErrorIcon(error);
+            console.error("Error loading glTFv2 model", error);
             this.loadingError = true;
         }
     }
@@ -5692,8 +5697,8 @@ class $677737c8a5cbea2f$export$2ec4afd9b3c16a85 {
             this.setupSketchMetaData(tiltData);
             this.initializeScene();
         } catch (error) {
-            this.showErrorIcon();
-            console.error("Error loading Tilt model");
+            this.showErrorIcon(error);
+            console.error("Error loading Tilt model", error);
             this.loadingError = true;
         }
     }
@@ -5720,8 +5725,8 @@ class $677737c8a5cbea2f$export$2ec4afd9b3c16a85 {
                 this.initializeScene();
             });
         } catch (error) {
-            this.showErrorIcon();
-            console.error("Error loading Obj model");
+            this.showErrorIcon(error);
+            console.error("Error loading Obj model", error);
             this.loadingError = true;
         }
     }
@@ -5744,8 +5749,8 @@ class $677737c8a5cbea2f$export$2ec4afd9b3c16a85 {
                 });
             });
         } catch (error) {
-            this.showErrorIcon();
-            console.error("Error loading Obj/Mtl model");
+            this.showErrorIcon(error);
+            console.error("Error loading Obj/Mtl model", error);
             this.loadingError = true;
         }
     }
@@ -5758,8 +5763,8 @@ class $677737c8a5cbea2f$export$2ec4afd9b3c16a85 {
             this.initializeScene();
             this.frameScene();
         } catch (error) {
-            this.showErrorIcon();
-            console.error("Error loading Fbx model");
+            this.showErrorIcon(error);
+            console.error("Error loading Fbx model", error);
             this.loadingError = true;
         }
     }
@@ -5778,8 +5783,8 @@ class $677737c8a5cbea2f$export$2ec4afd9b3c16a85 {
             this.initializeScene();
             this.frameScene();
         } catch (error) {
-            this.showErrorIcon();
-            console.error("Error loading Ply model");
+            this.showErrorIcon(error);
+            console.error("Error loading Ply model", error);
             this.loadingError = true;
         }
     }
@@ -5801,8 +5806,8 @@ class $677737c8a5cbea2f$export$2ec4afd9b3c16a85 {
             this.initializeScene();
             this.frameScene();
         } catch (error) {
-            this.showErrorIcon();
-            console.error("Error loading Stl model");
+            this.showErrorIcon(error);
+            console.error("Error loading Stl model", error);
             this.loadingError = true;
         }
     }
@@ -5815,8 +5820,8 @@ class $677737c8a5cbea2f$export$2ec4afd9b3c16a85 {
             this.initializeScene();
             this.frameScene();
         } catch (error) {
-            this.showErrorIcon();
-            console.error("Error loading Usdz model");
+            this.showErrorIcon(error);
+            console.error("Error loading Usdz model", error);
             this.loadingError = true;
         }
     }
@@ -5836,8 +5841,8 @@ class $677737c8a5cbea2f$export$2ec4afd9b3c16a85 {
             this.initializeScene();
             this.frameScene();
         } catch (error) {
-            this.showErrorIcon();
-            console.error("Error loading Vox model");
+            this.showErrorIcon(error);
+            console.error("Error loading Vox model", error);
             this.loadingError = true;
         }
     }
@@ -5878,7 +5883,7 @@ class $677737c8a5cbea2f$export$2ec4afd9b3c16a85 {
                 SparkModule = await this.loadSparkModule();
             } catch (importError) {
                 console.error(importError.message);
-                this.showErrorIcon();
+                this.showErrorIcon(error);
                 this.loadingError = true;
                 return;
             }
@@ -5897,7 +5902,7 @@ class $677737c8a5cbea2f$export$2ec4afd9b3c16a85 {
             let loadscreen = document.getElementById('loadscreen');
             if (loadscreen && !loadscreen.classList.contains('loaderror')) loadscreen.classList.add('fade-out');
         } catch (error) {
-            this.showErrorIcon();
+            this.showErrorIcon(error);
             console.error("Error loading Splat model:", error);
             this.loadingError = true;
         }
@@ -6046,7 +6051,7 @@ class $677737c8a5cbea2f$export$2ec4afd9b3c16a85 {
             (0, $e1f901905a002d12$export$2e2bcd8739ae039).install({
                 THREE: $hBQxr$three
             });
-            this.cameraControls = new (0, $e1f901905a002d12$export$2e2bcd8739ae039)(this.flatCamera, viewer.canvas);
+            this.cameraControls = new (0, $e1f901905a002d12$export$2e2bcd8739ae039)(this.flatCamera, this.canvas);
             this.cameraControls.smoothTime = 0.1;
             this.cameraControls.draggingSmoothTime = 0.1;
             this.cameraControls.polarRotateSpeed = this.cameraControls.azimuthRotateSpeed = 1.0;
@@ -6085,7 +6090,7 @@ class $677737c8a5cbea2f$export$2ec4afd9b3c16a85 {
             (0, $e1f901905a002d12$export$2e2bcd8739ae039).install({
                 THREE: $hBQxr$three
             });
-            this.cameraControls = new (0, $e1f901905a002d12$export$2e2bcd8739ae039)(this.flatCamera, viewer.canvas);
+            this.cameraControls = new (0, $e1f901905a002d12$export$2e2bcd8739ae039)(this.flatCamera, this.canvas);
             this.cameraControls.smoothTime = 0.1;
             this.cameraControls.draggingSmoothTime = 0.1;
             this.cameraControls.polarRotateSpeed = this.cameraControls.azimuthRotateSpeed = 1.0;
